@@ -8,12 +8,16 @@ from app.core.logging import configure_logging, get_logger
 from app.models.db import init_db
 from app.exceptions import AppError
 from app.api.routes.ingest import router as ingest_router
+from app.api.routes.query import router as query_router
+from app.api.routes.items import router as items_router
 
 configure_logging(settings.log_level)
 logger = get_logger(__name__)
 
 app = FastAPI(title="Knowledge Inbox API")
 app.include_router(ingest_router)
+app.include_router(query_router)
+app.include_router(items_router)
 
 
 @app.middleware("http")
