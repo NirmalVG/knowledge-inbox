@@ -10,3 +10,20 @@ class ItemOut(BaseModel):
     type: str
     status: str
     created_at: str
+
+class QueryRequest(BaseModel):
+    question: str
+    top_k: Optional[int] = 4
+
+
+class SourceOut(BaseModel):
+    ref: int
+    item_id: str
+    item_title: str
+    snippet: str
+    score: float
+
+
+class QueryResponse(BaseModel):
+    answer: str
+    sources: list[SourceOut]

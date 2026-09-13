@@ -2,6 +2,7 @@ import uuid
 import structlog
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
@@ -18,6 +19,13 @@ app = FastAPI(title="Knowledge Inbox API")
 app.include_router(ingest_router)
 app.include_router(query_router)
 app.include_router(items_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Vite's default dev port
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.middleware("http")

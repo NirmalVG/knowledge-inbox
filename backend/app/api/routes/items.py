@@ -7,7 +7,9 @@ router = APIRouter()
 
 @router.get("/items")
 def list_items(status: Optional[str] = Query(default=None)):
-    query = "SELECT id, type, title, source_url, status, char_count, created_at, error_reason FROM items"
+    query = """SELECT id, type, title, source_url, status, char_count, created_at, error_reason,
+                      SUBSTR(raw_content, 1, 200) as preview
+               FROM items"""
     params = ()
     if status:
         query += " WHERE status = ?"
