@@ -72,7 +72,7 @@ export function ItemCard({ item }: { item: Item }) {
       <button
         type="button"
         onClick={handleDelete}
-        className="absolute top-3 right-0 w-8 h-8 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-surface-substrate-alt text-neutral-400 hover:text-neutral-900 transition-all"
+        className="absolute top-3 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-neutral-400 opacity-0 transition-all group-hover:opacity-100 hover:bg-surface-substrate-alt hover:text-neutral-900"
         title="Delete item"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -104,7 +104,7 @@ export function ItemCard({ item }: { item: Item }) {
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="rounded-md px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-surface-substrate-alt"
+                className="cursor-pointer rounded-md px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-surface-substrate-alt"
               >
                 Cancel
               </button>
@@ -112,7 +112,7 @@ export function ItemCard({ item }: { item: Item }) {
                 type="button"
                 onClick={confirmDelete}
                 disabled={isPending}
-                className="rounded-md bg-status-error px-3 py-2 text-sm font-medium text-white hover:bg-red-600"
+                className="cursor-pointer rounded-md bg-status-error px-3 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:cursor-not-allowed"
               >
                 {isPending ? "Deleting..." : "Delete"}
               </button>

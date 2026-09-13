@@ -23,7 +23,7 @@ export function IngestPanel() {
             <button
               key={t}
               onClick={() => setType(t)}
-              className={`px-3 py-1.5 rounded text-sm font-medium capitalize transition-colors ${
+              className={`cursor-pointer px-3 py-1.5 rounded text-sm font-medium capitalize transition-colors ${
                 type === t
                   ? "bg-white text-neutral-900 shadow-sm"
                   : "text-neutral-600"
@@ -45,7 +45,7 @@ export function IngestPanel() {
         <button
           onClick={handleSave}
           disabled={isPending || !content.trim()}
-          className="bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2 rounded-md transition-colors"
+          className="cursor-pointer bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2 rounded-md transition-colors"
         >
           {isPending ? "Saving..." : "Save"}
         </button>

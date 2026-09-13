@@ -50,7 +50,7 @@ export function AskPanel() {
         <button
           onClick={handleAsk}
           disabled={isPending || !question.trim()}
-          className="bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2 rounded-md transition-colors flex-shrink-0"
+          className="cursor-pointer bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2 rounded-md transition-colors flex-shrink-0"
         >
           {isPending ? "Thinking..." : "Ask"}
         </button>

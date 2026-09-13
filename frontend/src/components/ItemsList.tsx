@@ -54,7 +54,7 @@ export function ItemsList() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
+              className={`cursor-pointer text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
                 filter === f
                   ? "bg-primary text-white"
                   : "bg-surface-substrate-alt text-neutral-600 hover:bg-border-default"

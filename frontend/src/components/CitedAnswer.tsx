@@ -26,7 +26,7 @@ export function CitedAnswer({
         <button
           key={match.index}
           onClick={() => onCitationClick(ref)}
-          className="inline-flex items-center justify-center align-super text-[11px] font-medium bg-primary/10 text-primary rounded px-1 mx-0.5 hover:bg-primary/20 transition-colors"
+          className="inline-flex cursor-pointer items-center justify-center align-super text-[11px] font-medium bg-primary/10 text-primary rounded px-1 mx-0.5 hover:bg-primary/20 transition-colors"
         >
           {ref}
         </button>,

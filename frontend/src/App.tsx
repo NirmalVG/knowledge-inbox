@@ -23,7 +23,7 @@ function App() {
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`pb-3 -mb-3 capitalize ${
+              className={`cursor-pointer pb-3 -mb-3 capitalize ${
                 view === v
                   ? "text-neutral-900 font-medium border-b-2 border-primary"
                   : "text-neutral-600 hover:text-neutral-900"
