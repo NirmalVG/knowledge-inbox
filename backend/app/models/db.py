@@ -1,6 +1,7 @@
 import sqlite3
 from contextlib import contextmanager
 from app.core.config import settings
+import numpy as np
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS items (
@@ -43,3 +44,9 @@ def get_connection():
         raise
     finally:
         conn.close()
+
+def serialize_embedding(vec: np.ndarray) -> bytes:
+    return vec.astype(np.float32).tobytes()
+
+def deserialize_embedding(blob: bytes) -> np.ndarray:
+    return np.frombuffer(blob, dtype=np.float32)
