@@ -32,7 +32,12 @@ export function useDeleteItem() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => deleteItem(id),
-    onSuccess: () => {
+    onSuccess: (_, deletedId) => {
+      // Remove it from the current list immediately. Refetch afterwards so the
+      // client still converges on the server state if another tab changed it.
+      queryClient.setQueryData<Item[]>(ITEMS_QUERY_KEY, (items) =>
+        items?.filter((item) => item.id !== deletedId),
+      )
       queryClient.invalidateQueries({ queryKey: ITEMS_QUERY_KEY })
     },
   })

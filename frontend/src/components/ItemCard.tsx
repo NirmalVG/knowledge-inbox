@@ -30,7 +30,7 @@ export function ItemCard({ item }: { item: Item }) {
   const sourceLabel =
     item.type === "url" ? getDomain(item.source_url) : "Personal Note"
 
-  const { mutate: deleteItem } = useDeleteItem()
+  const { mutate: deleteItem, isPending, error } = useDeleteItem()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const handleDelete = () => {
@@ -38,7 +38,9 @@ export function ItemCard({ item }: { item: Item }) {
   }
 
   const confirmDelete = () => {
-    deleteItem(item.id, { onSuccess: () => setShowDeleteModal(false) })
+    deleteItem(item.id, {
+      onSuccess: () => setShowDeleteModal(false),
+    })
   }
 
   return (
@@ -68,6 +70,7 @@ export function ItemCard({ item }: { item: Item }) {
       </div>
 
       <button
+        type="button"
         onClick={handleDelete}
         className="absolute top-3 right-0 w-8 h-8 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-surface-substrate-alt text-neutral-400 hover:text-neutral-900 transition-all"
         title="Delete item"
@@ -108,11 +111,17 @@ export function ItemCard({ item }: { item: Item }) {
               <button
                 type="button"
                 onClick={confirmDelete}
+                disabled={isPending}
                 className="rounded-md bg-status-error px-3 py-2 text-sm font-medium text-white hover:bg-red-600"
               >
-                Delete
+                {isPending ? "Deleting..." : "Delete"}
               </button>
             </div>
+            {error && (
+              <p className="mt-3 text-sm text-status-error" role="alert">
+                {(error as Error).message}
+              </p>
+            )}
           </div>
         </div>
       )}

@@ -65,7 +65,7 @@ export function AskPanel() {
       {data && (
         <div className="mt-6">
           <p className="text-neutral-400 text-xs font-medium uppercase tracking-wide mb-3">
-            Synthesis from {data.sources.length} saved source
+            Synthesis from {data.sources.length} saved item
             {data.sources.length === 1 ? "" : "s"}
           </p>
           <div className="rounded-lg border border-border-hairline bg-surface p-4">

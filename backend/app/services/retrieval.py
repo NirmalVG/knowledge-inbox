@@ -14,6 +14,7 @@ RERANK_MODEL = "rerank-english-v3.0"
 
 RECALL_TOP_K = 20
 FINAL_TOP_K = 4
+RERANK_TOP_K = FINAL_TOP_K * 3
 MIN_RERANK_SCORE = 0.15  # floor below which we treat retrieval as "no relevant content"
 
 
@@ -72,7 +73,10 @@ def _rerank(question: str, candidates: list[dict]) -> list[RetrievedChunk]:
         model=RERANK_MODEL,
         query=question,
         documents=[c["content"] for c in candidates],
-        top_n=min(FINAL_TOP_K, len(candidates)),
+        # Rerank a wider set first. The best four chunks may all belong to one
+        # long page; choosing unique items below gives the answer distinct
+        # documents to cite without weakening the candidate pool.
+        top_n=min(RERANK_TOP_K, len(candidates)),
     )
 
     results = []
@@ -90,6 +94,20 @@ def _rerank(question: str, candidates: list[dict]) -> list[RetrievedChunk]:
     return results
 
 
+def _select_unique_items(chunks: list[RetrievedChunk]) -> list[RetrievedChunk]:
+    """Keep the highest-ranked chunk for each item, up to the response limit."""
+    selected: list[RetrievedChunk] = []
+    seen_item_ids: set[str] = set()
+    for chunk in chunks:
+        if chunk.item_id in seen_item_ids:
+            continue
+        selected.append(chunk)
+        seen_item_ids.add(chunk.item_id)
+        if len(selected) == FINAL_TOP_K:
+            break
+    return selected
+
+
 def retrieve(question: str) -> list[RetrievedChunk]:
     """Two-stage retrieval: cosine recall (top 20) -> Cohere rerank (top 4).
     Returns [] if nothing scores above MIN_RERANK_SCORE, signaling the caller
@@ -98,10 +116,12 @@ def retrieve(question: str) -> list[RetrievedChunk]:
     reranked = _rerank(question, candidates)
 
     strong_results = [r for r in reranked if r.score >= MIN_RERANK_SCORE]
+    unique_results = _select_unique_items(strong_results)
     logger.info(
         "retrieval_complete",
         candidate_count=len(candidates),
         reranked_count=len(reranked),
         strong_count=len(strong_results),
+        unique_item_count=len(unique_results),
     )
-    return strong_results
+    return unique_results
