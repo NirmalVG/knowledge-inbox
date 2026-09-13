@@ -12,6 +12,7 @@ export interface Item {
   char_count: number
   created_at: string
   error_reason?: string | null
+  preview?: string | null
 }
 
 export interface Source {
@@ -76,4 +77,14 @@ export async function askQuestion(
     body: JSON.stringify({ question, top_k: topK }),
   })
   return handleResponse<QueryResult>(res)
+}
+
+export async function deleteItem(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/items/${id}`, { method: "DELETE" })
+  if (!res.ok) {
+    const body = await res.json().catch(() => null)
+    const code = body?.error?.code ?? "UNKNOWN_ERROR"
+    const message = body?.error?.message ?? `Delete failed with status ${res.status}`
+    throw new ApiError(code, message, res.status)
+  }
 }

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { IngestPanel } from "@/components/IngestPanel"
 import { ItemsList } from "@/components/ItemsList"
 import { AskPanel } from "@/components/AskPanel"
+import { StatusBanner } from "@/components/StatusBanner"
 
 type View = "inbox" | "ask"
 
@@ -46,6 +47,7 @@ function App() {
             </p>
             <IngestPanel />
             <ItemsList />
+            <StatusBanner />
           </div>
         ) : (
           <AskPanel />

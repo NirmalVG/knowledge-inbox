@@ -3,6 +3,7 @@ import structlog
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
@@ -15,14 +16,21 @@ from app.api.routes.items import router as items_router
 configure_logging(settings.log_level)
 logger = get_logger(__name__)
 
-app = FastAPI(title="Knowledge Inbox API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    logger.info("startup_complete", database_path=settings.database_path)
+    yield
+    logger.info("shutdown_complete")
+
+app = FastAPI(title="Knowledge Inbox API", lifespan=lifespan)
 app.include_router(ingest_router)
 app.include_router(query_router)
 app.include_router(items_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite's default dev port
+    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -44,12 +52,6 @@ async def app_error_handler(request: Request, exc: AppError):
     if exc.details:
         body["error"]["details"] = exc.details
     return JSONResponse(status_code=exc.status_code, content=body)
-
-
-@app.on_event("startup")
-def on_startup():
-    init_db()
-    logger.info("startup_complete", database_path=settings.database_path)
 
 
 @app.get("/health")

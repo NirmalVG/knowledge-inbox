@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { fetchItems, ingestItem, type Item, type ItemType } from "@/lib/api"
+import { fetchItems, ingestItem, deleteItem, type Item, type ItemType } from "@/lib/api"
 
 const ITEMS_QUERY_KEY = ["items"]
 
@@ -22,6 +22,16 @@ export function useIngestItem() {
   return useMutation({
     mutationFn: ({ type, content }: { type: ItemType; content: string }) =>
       ingestItem(type, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ITEMS_QUERY_KEY })
+    },
+  })
+}
+
+export function useDeleteItem() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => deleteItem(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ITEMS_QUERY_KEY })
     },
