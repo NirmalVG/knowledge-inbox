@@ -3,20 +3,30 @@ from datetime import datetime, timezone
 
 from app.models.db import get_connection, serialize_embedding
 from app.services.fetcher import fetch_and_extract
-from app.services.chunking import chunk_text
+from app.services.chunking import chunk_text, split_sentences
 from app.services.embeddings import embed_documents
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 MAX_NOTE_LENGTH = 50_000
+TITLE_MAX_LENGTH = 80
+
+
+def derive_title(content: str, max_length: int = TITLE_MAX_LENGTH) -> str:
+    """Short, human-readable title for a note: first sentence, truncated at
+    a word boundary if still too long. URL items get their real page title
+    from fetch_and_extract() instead — this is note-only."""
+    sentences = split_sentences(content)
+    first = sentences[0] if sentences else content
+    if len(first) <= max_length:
+        return first
+    return first[:max_length].rsplit(" ", 1)[0] + "..."
 
 
 def create_item(item_type: str, content: str) -> dict:
-    """Insert a new item row immediately (status='processing') so the client
-    gets a fast response. Actual content extraction / chunking / embedding
-    happens afterward in process_item(), run as a background task."""
     item_id = f"itm_{uuid.uuid4().hex[:12]}"
     now = datetime.now(timezone.utc).isoformat()
+    title = derive_title(content) if item_type == "note" else None
 
     with get_connection() as conn:
         conn.execute(
@@ -25,7 +35,7 @@ def create_item(item_type: str, content: str) -> dict:
             (
                 item_id,
                 item_type,
-                content if item_type == "note" else None,
+                title,
                 content if item_type == "url" else None,
                 content if item_type == "note" else None,
                 len(content) if item_type == "note" else 0,
@@ -36,11 +46,6 @@ def create_item(item_type: str, content: str) -> dict:
 
 
 async def process_item(item_id: str, item_type: str, source: str) -> None:
-    """Background pipeline: (1) resolve raw content — fetch+extract for URLs,
-    read back for notes — (2) chunk it, (3) embed the chunks, (4) persist
-    chunks+embeddings, (5) flip status to ready. Any failure at any stage
-    marks the item 'failed' with a human-readable error_reason instead of
-    leaving it stuck or crashing the process."""
     log = logger.bind(item_id=item_id, item_type=item_type)
     try:
         if item_type == "url":
