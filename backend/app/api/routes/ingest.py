@@ -3,13 +3,17 @@ from urllib.parse import urlparse
 from app.models.schema import IngestRequest, ItemOut
 from app.services.ingestion import create_item, process_item, MAX_NOTE_LENGTH
 from app.exceptions import EmptyContentError, InvalidURLError, ContentTooLargeError
+from app.core.logging import get_logger
 
 router = APIRouter()
+logger = get_logger(__name__)
+
 
 def _validate_url(url: str) -> None:
     parsed = urlparse(url)
     if not (parsed.scheme in ("http", "https") and parsed.netloc):
         raise InvalidURLError(url)
+
 
 @router.post("/ingest", response_model=ItemOut, status_code=202)
 async def ingest(payload: IngestRequest, background_tasks: BackgroundTasks):
@@ -21,6 +25,8 @@ async def ingest(payload: IngestRequest, background_tasks: BackgroundTasks):
         raise ContentTooLargeError(MAX_NOTE_LENGTH)
     if payload.type == "url":
         _validate_url(content)
+
+    logger.info("ingest_requested", type=payload.type, content_length=len(content))
 
     item = create_item(payload.type, content)
     background_tasks.add_task(process_item, item["id"], payload.type, content)

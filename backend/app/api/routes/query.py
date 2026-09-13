@@ -25,6 +25,8 @@ async def query(payload: QueryRequest):
     if ready_count == 0:
         raise NoContentError()
 
+    logger.info("query_requested", question_length=len(question))
+
     chunks = retrieve(question)
     if not chunks:
         return QueryResponse(answer=NO_CONTEXT_ANSWER, sources=[])
